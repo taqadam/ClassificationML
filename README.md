@@ -1,4 +1,4 @@
-# TQ219
+# TQ_Classification_Template
 
 Taqadam Training Template for Transfer learning.
 
