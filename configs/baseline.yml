@@ -1,0 +1,109 @@
+name: vgg16
+checkpoint_dir: notes/checkpoints
+logs_dir: notes/logs
+tensorboard_dir: notes/tensorboard
+trained_model_dir: notes/model
+results_dir: notes/results
+
+trained_model:
+  include_optimizer: no
+
+train:
+  path: data/samples/train
+  augmentation:
+    rescale: 0.00392156862745098
+    featurewise_center: no
+    samplewise_center: yes
+    featurewise_std_normalization: no
+    samplewise_std_normalization: yes
+    rotation_range: no
+    width_shift_range: no
+    height_shift_range: no
+    brightness_range: [.5, 1.5]
+    shear_range: no
+    zoom_range: no
+    horizontal_flip: yes
+    vertical_flip: yes
+    fill_mode: reflect
+
+test:
+  path: data/samples/test
+  augmentation:
+    rescale: 0.00392156862745098
+
+val:
+  path: data/samples/val
+  augmentation:
+    rescale: 0.00392156862745098
+
+training:
+  loss: binary_crossentropy
+  input_shape: [124, 124, 3]
+  target_size: [124, 124]
+  class_mode: categorical
+  metrics: ["acc"]
+
+model:
+  compilier:
+    loss: binary_crossentropy
+    optimizer: adam
+    metrics: ["acc"]
+    learning_rate: 0.0001
+  base:
+    weights: imagenet
+    include_top: no
+    input_shape: [124, 124, 3]
+    block: block5_conv1
+
+trainer:
+  epochs: 13
+  steps_per_epoch: none
+  verbose: 1
+  validation_steps: none
+
+
+generators:
+  train:
+    target_size: [124, 124]
+    batch_size: 32
+    class_mode: categorical
+    shuffle: yes
+  test:
+    target_size: [124, 124]
+    batch_size: 1
+    class_mode: categorical
+    shuffle: no
+  val:
+    target_size: [124, 124]
+    batch_size: 32
+    class_mode: categorical
+    shuffle: no
+
+callbacks:
+  checkpoint:
+    mode: auto
+    monitor: val_loss
+    save_best_only: yes
+    verbose: 1
+    save_weights_only: no
+  lr_plateau:
+    cooldown: 5
+    factor: 0.8
+    min_delta: 0.0001
+    min_lr: 0.0001
+    mode: auto
+    monitor: val_loss
+    patience: 15
+    verbose: 1
+  early_stopping:
+    mode: auto
+    monitor: val_loss
+    patience: 10
+    restore_best_weights: yes
+  tensorboard:
+    write_graph: yes
+    write_grads: yes
+    write_images: yes
+    update_freq: epoch
+  csv_logger:
+    separator: ","
